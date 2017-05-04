@@ -6,7 +6,8 @@
 >基本类型                  
 >>◀Vector2/Vector3       二维向量/三维向量▶                  
 >>◀Matrix2/Matrix3       二维矩阵/三维矩阵▶                   
->>◀Quaternion      四元数▶                     
+>>◀Quaternion      四元数▶                   
+                           
 >基本方法                   
 >>◀Vec2/Vec3/Mat2/Mat4     构造向量/矩阵▶                    
 >>◀=/+/-/*     基本运算▶                      
@@ -17,6 +18,7 @@
 >>◀RotateX/RotateY/RotateZ/RotateAxis     绕x轴旋转/绕y轴旋转/绕z轴旋转/绕任意轴旋转（结果是矩阵）▶                    
 >>◀Quaternion_N/Quaternion_Normalize     四元数模/四元数标准化▶                       
 >>◀Rotate     四元数计算绕任意轴旋转▶                        
+                                 
 >用途                          
 >>3d碰撞检测                                
              

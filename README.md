@@ -9,7 +9,7 @@
 >>◀Quaternion      四元数▶                   
                            
 >基本方法                   
->>◀Vec2/Vec3/Mat2/Mat4     构造向量/矩阵▶                    
+>>◀Vec2/Vec3/Mat2/Mat3     构造向量/矩阵▶                    
 >>◀=/+/-/*     基本运算▶                      
 >>◀Scanf/Printf/PrintfLn     输入输出▶                    
 >>◀dot_product/cross_product     点积/叉积▶                       
@@ -20,5 +20,5 @@
 >>◀Rotate     四元数计算绕任意轴旋转▶                        
                                  
 >用途                          
->>3d碰撞检测                                
+>>◀3d碰撞检测▶                                
              

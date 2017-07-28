@@ -39,7 +39,7 @@ const
  Mat3_0:Matrix3=((0,0,0),(0,0,0),(0,0,0));
  Mat4_I:Matrix4=((1,0,0,0),(0,1,0,0),(0,0,1,0),(0,0,0,1));
  Mat4_0:Matrix4=((0,0,0,0),(0,0,0,0),(0,0,0,0),(0,0,0,0));
- Quaternion_0:Quaternion=(x:0;y:0;z:0;w:1);
+ Quat_I:Quaternion=(x:0;y:0;z:0;w:1);
 
 procedure Swap(var a,b:real);
 
@@ -77,6 +77,7 @@ procedure Printf(const a:Matrix2);
 
 function Vec3(const a:real):Vector3;
 function Vec3(const a1,a2,a3:real):Vector3;
+function Vec3(const a:Vector4):Vector3;
 function Mat3(const a:real):Matrix3;
 function Mat3(const a11,a12,a13,a21,a22,a23,a31,a32,a33:real):Matrix3;
 function mold(const a:Vector3):real;
@@ -152,10 +153,16 @@ procedure Printf(const a:Matrix4);
 
 function Mat4pos(const a:Matrix4;x:Longint):real;
 function Translate(const x,y,z:real):Matrix4;
+function Translate(const a:Vector3):Matrix4;
 function Rotate(a,x,y,z:real):Matrix4;
+function Rotate(const ang:real;const a:Vector3):Matrix4;
 function Scale(const x,y,z:real):Matrix4;
+function Scale(const a:Vector3):Matrix4;
 
 
+function Quat(const x,y,z,w:real):Quaternion;
+function Quat(const a:Vector3;const w:real):Quaternion;
+function Quat(const a:Vector4):Quaternion;
 operator +(const a,b:Quaternion)c:Quaternion;
 operator -(const a,b:Quaternion)c:Quaternion;
 operator -(const a:Quaternion)c:Quaternion;
@@ -291,6 +298,8 @@ function Vec3(const a:real):Vector3;
  var c:Vector3; begin c[1]:=a; c[2]:=a; c[3]:=a end;
 function Vec3(const a1,a2,a3:real):Vector3;
  var c:Vector3; begin c[1]:=a1; c[2]:=a2; c[3]:=a3; exit(c) end;
+function Vec3(const a:Vector4):Vector3;
+ begin Vec3[1]:=a[1]; Vec3[2]:=a[2]; Vec3[3]:=a[3] end;
 function Mat3(const a:real):Matrix3;
  var c:Matrix3; begin fillchar(c,sizeof(c),0);
                       c[1,1]:=a; c[2,2]:=a; c[3,3]:=a; exit(c) end;
@@ -524,9 +533,21 @@ function Rotate(a,x,y,z:real):Matrix4;
                                0,0,0,1)) end;
 function Scale(const x,y,z:real):Matrix4;
  begin exit(Mat4(x,0,0,0,0,y,0,0,0,0,z,0,0,0,0,1)) end;
+function Translate(const a:Vector3):Matrix4;
+ begin exit(Translate(a[1],a[2],a[3])) end;
+function Rotate(const ang:real;const a:Vector3):Matrix4;
+ begin exit(Rotate(ang,a[1],a[2],a[3])) end;
+function Scale(const a:Vector3):Matrix4;
+ begin exit(Scale(a[1],a[2],a[3])) end;
 
 
 
+function Quat(const x,y,z,w:real):Quaternion;
+ begin Quat.x:=x; Quat.y:=y; Quat.z:=z; Quat.w:=w end;
+function Quat(const a:Vector3;const w:real):Quaternion;
+ begin exit(Quat(a[1],a[2],a[3],w)) end;
+function Quat(const a:Vector4):Quaternion;
+ begin exit(Quat(a[1],a[2],a[3],a[4])) end;
 operator +(const a,b:Quaternion)c:Quaternion;
  begin c.x:=a.x+b.x; c.y:=a.y+b.y; c.z:=a.z+b.z; c.w:=a.w+b.w end;
 operator -(const a,b:Quaternion)c:Quaternion;

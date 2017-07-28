@@ -21,4 +21,12 @@
                                  
 >用途                          
 >>◀3d碰撞检测▶                                
-             
+              
+              
+              
+*2017/7/29  补充*
+>介于重构PmdDeal.pas时骨骼蒙皮需要近似OpenGL矩阵运算的各种功能（有向GLM靠拢的趋势，但不计效率）。
+>此次重构旨在支持简单的mmd动画，并且重构后的代码会支持在shyakocat的SimpleAnimeUnit中绘制！
+>>新增了Matrix4
+>>补充了泛用Vector,Matrix的操作（如求逆矩阵等）
+>>新增了针对Matrix4的三个操作：Translate,Rotate,Scale（其中Rotate不支持逆向变换？正在研究原因中）

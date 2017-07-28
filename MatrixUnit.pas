@@ -152,7 +152,7 @@ procedure Printf(const a:Matrix4);
 
 function Mat4pos(const a:Matrix4;x:Longint):real;
 function Translate(const x,y,z:real):Matrix4;
-function Rotate(const a,x,y,z:real):Matrix4;
+function Rotate(a,x,y,z:real):Matrix4;
 function Scale(const x,y,z:real):Matrix4;
 
 
@@ -169,6 +169,7 @@ function inverse(const a:Quaternion):Quaternion;
 function Quaternion_Point(const a:Vector3):Quaternion;
 function Quaternion_Rotate(a:Vector3;t:real):Quaternion;
 function Rotate(const a,b:Vector3;const t:real):Vector3;
+function Quaternion_Cast(const a:Quaternion):Matrix4;
 procedure Scanf(var a:Quaternion);
 procedure Printf(const a:Quaternion);
 procedure PrintfLn(const a:Quaternion);
@@ -422,7 +423,7 @@ function Mat4(const a11,a12,a13,a14,a21,a22,a23,a24,a31,a32,a33,a34,a41,a42,a43,
  var c:Matrix4; begin c[1,1]:=a11; c[1,2]:=a12; c[1,3]:=a13; c[1,4]:=a14;
                       c[2,1]:=a21; c[2,2]:=a22; c[2,3]:=a23; c[2,4]:=a24;
                       c[3,1]:=a31; c[3,2]:=a32; c[3,3]:=a33; c[3,4]:=a34;
-                      c[4,1]:=a41; c[4,2]:=a42; c[4,2]:=a43; c[4,4]:=a44; exit(c) end;
+                      c[4,1]:=a41; c[4,2]:=a42; c[4,3]:=a43; c[4,4]:=a44; exit(c) end;
 function mold(const a:Vector4):real;
  begin exit(sqrt(sqr(a[1])+sqr(a[2])+sqr(a[3])+sqr(a[4]))) end;
 function mold2(const a:Vector4):real;
@@ -514,8 +515,9 @@ function Mat4pos(const a:Matrix4;x:Longint):real;
  begin exit(a[(x-1)div 4+1,(x-1)mod 4+1]) end;
 function Translate(const x,y,z:real):Matrix4;
  begin exit(Mat4(1,0,0,x,0,1,0,y,0,0,1,z,0,0,0,1)) end;
-function Rotate(const a,x,y,z:real):Matrix4;
- var u,v:real; begin u:=cos(a); v:=sin(a);
+function Rotate(a,x,y,z:real):Matrix4;
+ var u,v:real; begin u:=1/sqrt(x*x+y*y+z*z); x:=x*u; y:=y*u; z:=z*u;
+                     a:=a*pi/180; u:=cos(a); v:=sin(a);
                      exit(Mat4(x*x*(1-u)+u,x*y*(1-u)+z*v,x*z*(1-u)-y*v,0,
                                x*y*(1-u)-z*v,y*y*(1-u)+u,y*z*(1-u)+x*v,0,
                                x*z*(1-u)+y*v,y*z*(1-u)-x*v,z*z*(1-u)+u,0,
@@ -556,6 +558,11 @@ function Quaternion_Rotate(a:Vector3;t:real):Quaternion;
 function Rotate(const a,b:Vector3;const t:real):Vector3;
  var p,q:Quaternion; begin p:=Quaternion_Point(a); q:=Quaternion_Rotate(b,t);
                            with q*p*inverse(q) do begin Rotate[1]:=x; Rotate[2]:=y; Rotate[3]:=z end end;
+function Quaternion_Cast(const a:Quaternion):Matrix4;
+ begin with a do exit(Mat4(2*(x*x+w*w)-1,2*(x*y+z*w),2*(x*z-y*w),0,
+                           2*(x*y-z*w),2*(y*y+w*w)-1,2*(y*z+x*w),0,
+                           2*(x*z+y*w),2*(y*z-x*w),2*(z*z+w*w)-1,0,
+                           0,0,0,1)) end;
 procedure Scanf(var a:Quaternion);
  begin with a do read(x,y,z,w) end;
 procedure Printf(const a:Quaternion);

@@ -80,6 +80,7 @@ function Vec3(const a1,a2,a3:real):Vector3;
 function Vec3(const a:Vector4):Vector3;
 function Mat3(const a:real):Matrix3;
 function Mat3(const a11,a12,a13,a21,a22,a23,a31,a32,a33:real):Matrix3;
+function Mat3(const a:Matrix4):Matrix3;
 function mold(const a:Vector3):real;
 function mold2(const a:Vector3):real;
 function normalize(const a:Vector3):Vector3;
@@ -90,6 +91,7 @@ operator -(const a:Vector3)c:Vector3;
 operator *(const a:Vector3;const t:real)c:Vector3;
 operator /(const a:Vector3;const t:real)c:Vector3;
 function dot_product(const a,b:Vector3):real;
+function cross_product(const a,b:Vector3):Vector3;
 operator =(const a,b:Matrix3)c:boolean;
 operator +(const a,b:Matrix3)c:Matrix3;
 operator -(const a,b:Matrix3)c:Matrix3;
@@ -163,6 +165,8 @@ function Scale(const a:Vector3):Matrix4;
 function Quat(const x,y,z,w:real):Quaternion;
 function Quat(const a:Vector3;const w:real):Quaternion;
 function Quat(const a:Vector4):Quaternion;
+function Quat(const a:Matrix3):Quaternion;
+function Quat(a,b:Vector3):Quaternion;
 operator +(const a,b:Quaternion)c:Quaternion;
 operator -(const a,b:Quaternion)c:Quaternion;
 operator -(const a:Quaternion)c:Quaternion;
@@ -174,9 +178,12 @@ function Quaternion_Normalize(const a:Quaternion):Quaternion;
 function conjugate(a:Quaternion):Quaternion;
 function inverse(const a:Quaternion):Quaternion;
 function Quaternion_Point(const a:Vector3):Quaternion;
+function Quaternion_Euler(const a:Vector3):Quaternion;//Yaw,Picth,Roll
 function Quaternion_Rotate(a:Vector3;t:real):Quaternion;
+function EulerAngles(const a:Quaternion):Vector3;
 function Rotate(const a,b:Vector3;const t:real):Vector3;
-function Quaternion_Cast(const a:Quaternion):Matrix4;
+function Quaternion_Cast4(const a:Quaternion):Matrix4;
+function Quaternion_Cast3(const a:Quaternion):Matrix3;
 procedure Scanf(var a:Quaternion);
 procedure Printf(const a:Quaternion);
 procedure PrintfLn(const a:Quaternion);
@@ -307,6 +314,10 @@ function Mat3(const a11,a12,a13,a21,a22,a23,a31,a32,a33:real):Matrix3;
  var c:Matrix3; begin c[1,1]:=a11; c[1,2]:=a12; c[1,3]:=a13;
                       c[2,1]:=a21; c[2,2]:=a22; c[2,3]:=a23;
                       c[3,1]:=a31; c[3,2]:=a32; c[3,3]:=a33; exit(c) end;
+function Mat3(const a:Matrix4):Matrix3;
+ var c:Matrix3; begin c[1,1]:=a[1,1]; c[1,2]:=a[1,2]; c[1,3]:=a[1,3];
+                      c[2,1]:=a[2,1]; c[2,2]:=a[2,2]; c[2,3]:=a[2,3];
+                      c[3,1]:=a[3,1]; c[3,2]:=a[3,2]; c[3,3]:=a[3,3]; exit(c) end;
 function mold(const a:Vector3):real;
  begin exit(sqrt(sqr(a[1])+sqr(a[2])+sqr(a[3]))) end;
 function mold2(const a:Vector3):real;
@@ -327,6 +338,9 @@ operator /(const a:Vector3;const t:real)c:Vector3;
  var i:smallint; begin for i:=1 to 3 do c[i]:=a[i]/t end;
 function dot_product(const a,b:Vector3):real;
  begin exit(a[1]*b[1]+a[2]*b[2]+a[3]*b[3]) end;
+//cross for vec3 = det for Mat3(i,j,k,a1,a2,a3,b1,b2,b3)
+function cross_product(const a,b:Vector3):Vector3;
+ begin exit(Vec3(a[2]*b[3]-b[2]*a[3],a[3]*b[1]-a[1]*b[3],a[1]*b[2]-a[2]*b[1])) end;
 operator =(const a,b:Matrix3)c:boolean;
  begin exit((a[1]=b[1])and(a[2]=b[2])and(a[3]=b[3])) end;
 operator +(const a,b:Matrix3)c:Matrix3;
@@ -548,6 +562,41 @@ function Quat(const a:Vector3;const w:real):Quaternion;
  begin exit(Quat(a[1],a[2],a[3],w)) end;
 function Quat(const a:Vector4):Quaternion;
  begin exit(Quat(a[1],a[2],a[3],a[4])) end;
+function Quat(const a:Matrix3):Quaternion;
+ var s:real; begin s:=1+a[1,1]+a[2,2]+a[3,3];
+                   if s>0 then with Quat do begin w:=sqrt(s)*0.5; s:=1/(4*w);
+                                                  x:=(a[2,3]-a[3,2])*s;
+                                                  y:=(a[3,1]-a[1,3])*s;
+                                                  z:=(a[1,2]-a[2,1])*s; exit end;
+                   s:=max(a[1,1],max(a[2,2],a[3,3]));
+                   if s=a[1,1] then with Quat do begin s:=sqrt(1+a[1,1]-a[2,2]-a[3,3]);
+                                                       x:=s*0.25;
+                                                       s:=1/s;
+                                                       w:=(a[2,3]-a[3,2])*s;
+                                                       y:=(a[2,1]+a[1,2])*s;
+                                                       z:=(a[3,1]+a[1,3])*s; exit end;
+                   if s=a[2,2] then with Quat do begin s:=sqrt(1-a[1,1]+a[2,2]-a[3,3]);
+                                                       y:=s*0.25;
+                                                       s:=1/s;
+                                                       w:=(a[3,1]-a[1,3])*s;
+                                                       x:=(a[2,1]+a[1,2])*s;
+                                                       z:=(a[3,2]+a[2,3])*s; exit end;
+                 {if s=a[3,3] then} with Quat do begin s:=sqrt(1-a[1,1]-a[2,2]+a[3,3]);
+                                                       z:=s*0.25;
+                                                       s:=1/s;
+                                                       w:=(a[1,2]-a[2,1])*s;
+                                                       x:=(a[3,1]+a[1,3])*s;
+                                                       y:=(a[3,2]+a[2,3])*s; exit end end;
+function Quat(a,b:Vector3):Quaternion;
+ var _cos,t,invt:real; r:Vector3; begin a:=normalize(a); b:=normalize(b);
+                                       _cos:=dot_product(a,b);
+                                       if _cos<-1+0.001 then begin
+                                       r:=cross_product(Vec3_Z,a);
+                                       if mold2(r)<0.01 then r:=cross_product(Vec3_X,a);
+                                       r:=normalize(r); exit(Quaternion_Rotate(r,180)) end;
+                                       r:=cross_product(a,b);
+                                       t:=sqrt((1+_cos)*2); invt:=1/t;
+                                       exit(Quat(r[1]*invt,r[2]*invt,r[3]*invt,t*0.5)) end;
 operator +(const a,b:Quaternion)c:Quaternion;
  begin c.x:=a.x+b.x; c.y:=a.y+b.y; c.z:=a.z+b.z; c.w:=a.w+b.w end;
 operator -(const a,b:Quaternion)c:Quaternion;
@@ -573,17 +622,34 @@ function inverse(const a:Quaternion):Quaternion;
  begin exit(conjugate(a)/(sqr(a.x)+sqr(a.y)+sqr(a.z)+sqr(a.w))) end;
 function Quaternion_Point(const a:Vector3):Quaternion;
  begin with Quaternion_Point do begin x:=a[1]; y:=a[2]; z:=a[3]; w:=0 end end;
+//if you Want Fast , take place /2 with *0.5
+function Quaternion_Euler(const a:Vector3):Quaternion; //Z,Y,X -> pusi,theta,phi
+ var sinu,sinv,sinw,cosu,cosv,cosw:real;
+ begin sinu:=sin(a[1]/2); sinv:=sin(a[2]/2); sinw:=sin(a[3]/2);
+       cosu:=cos(a[1]/2); cosv:=cos(a[2]/2); cosw:=cos(a[3]/2);
+       exit(Quat(sinu*cosv*cosw-cosu*sinv*sinw,
+                 cosu*sinv*cosw+sinu*cosv*sinw,
+                 cosu*cosv*sinw-sinu*sinv*cosw,
+                 cosu*cosv*cosw+sinu*sinv*sinw)) end;
+function EulerAngles(const a:Quaternion):Vector3;      //arctan2(y,x)=arctan(y/x) arctan2->(-pi,pi] arctan->(-pi/2,pi/2]
+ begin with a do Exit(Vec3(arctan2(2*(w*x+y*z),(1-2*(x*x+y*y))),
+                           arcsin(2*(w*y-z*x)),
+                           arctan2(2*(w*z+x*y),(1-2*(y*y+z*z))))) end;
 function Quaternion_Rotate(a:Vector3;t:real):Quaternion;
  var _sin,_cos:real; c:Quaternion; begin t:=t*pi/360; _sin:=sin(t); _cos:=cos(t); a:=normalize(a);
  with c do begin w:=_cos; x:=a[1]*_sin; y:=a[2]*_sin; z:=a[3]*_sin end; exit(c) end;
 function Rotate(const a,b:Vector3;const t:real):Vector3;
  var p,q:Quaternion; begin p:=Quaternion_Point(a); q:=Quaternion_Rotate(b,t);
                            with q*p*inverse(q) do begin Rotate[1]:=x; Rotate[2]:=y; Rotate[3]:=z end end;
-function Quaternion_Cast(const a:Quaternion):Matrix4;
+function Quaternion_Cast4(const a:Quaternion):Matrix4;
  begin with a do exit(Mat4(2*(x*x+w*w)-1,2*(x*y+z*w),2*(x*z-y*w),0,
                            2*(x*y-z*w),2*(y*y+w*w)-1,2*(y*z+x*w),0,
                            2*(x*z+y*w),2*(y*z-x*w),2*(z*z+w*w)-1,0,
                            0,0,0,1)) end;
+function Quaternion_Cast3(const a:Quaternion):Matrix3;
+ begin with a do exit(Mat3(2*(x*x+w*w)-1,2*(x*y+z*w),2*(x*z-y*w),
+                           2*(x*y-z*w),2*(y*y+w*w)-1,2*(y*z+x*w),
+                           2*(x*z+y*w),2*(y*z-x*w),2*(z*z+w*w)-1)) end;
 procedure Scanf(var a:Quaternion);
  begin with a do read(x,y,z,w) end;
 procedure Printf(const a:Quaternion);

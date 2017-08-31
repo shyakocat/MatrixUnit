@@ -13,15 +13,15 @@ type
  Matrix4=array[1..4,1..4]of single;
  Quaternion=record x,y,z,w:single end; //xi+yj+zk+w
  Vector=object n:longint; A:array of single;
- constructor Create(_n:Longint);
- function GetValue(i:Longint):single;
- procedure SetValue(i:Longint;const x:single);
- property Items[i:Longint]:single read GetValue write SetValue;default; end;
+  constructor Create(_n:Longint);
+  function GetValue(i:Longint):single;
+  procedure SetValue(i:Longint;const x:single);
+  property Items[i:Longint]:single read GetValue write SetValue;default; end;
  Matrix=object n,m:longint; A:array of array of single;
- constructor Create(_n,_m:Longint);
- function GetValue(i,j:Longint):single;
- procedure SetValue(i,j:Longint;const x:single);
- property Items[i,j:Longint]:single read GetValue write SetValue;default; end;
+  constructor Create(_n,_m:Longint);
+  function GetValue(i,j:Longint):single;
+  procedure SetValue(i,j:Longint;const x:single);
+  property Items[i,j:Longint]:single read GetValue write SetValue;default; end;
 const
  Vec2_0:Vector2=(0,0);
  Vec3_0:Vector3=(0,0,0);
@@ -77,6 +77,7 @@ procedure Scanf(var a:Matrix2);
 procedure Printf(const a:Vector2);
 procedure PrintfLn(const a:Vector2);
 procedure Printf(const a:Matrix2);
+function Rotate2x2(t:single):Matrix2;
 
 function Vec3(const a:single):Vector3;
 function Vec3(const a1,a2,a3:single):Vector3;
@@ -319,6 +320,9 @@ procedure PrintfLn(const a:Vector2);
  begin Printf(a); writeln end;
 procedure Printf(const a:Matrix2);
  begin PrintfLn(a[1]); PrintfLn(a[2]) end;
+function Rotate2x2(t:single):Matrix2;
+ var _sin,_cos:single; begin t:=t*pi/180; _sin:=sin(t); _cos:=cos(t);
+                             exit(Mat2(_cos,-_sin,_sin,_cos)) end;
 
 
 function Vec3(const a:single):Vector3;

@@ -30,4 +30,12 @@
 >>◁新增了Vector4,Matrix4▷             
 >>◁补充了泛用Vector,Matrix的操作（如求逆矩阵等）▷              
 >>◁新增了针对Matrix4的三个操作：Translate,Rotate,Scale▷                   
->>◁新增了四元数Quaternion转Matrix4x4▷
+>>◁新增了四元数Quaternion转Matrix4x4▷                         
+                     
+                                          
+                                                               
+                                                                                    
+                                                                                    
+
+
+

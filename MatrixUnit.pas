@@ -13,15 +13,19 @@ type
  Matrix4=array[1..4,1..4]of single;
  Quaternion=record x,y,z,w:single end; //xi+yj+zk+w
  Vector=object n:longint; A:array of single;
-  constructor Create(_n:Longint);
-  function GetValue(i:Longint):single;
-  procedure SetValue(i:Longint;const x:single);
-  property Items[i:Longint]:single read GetValue write SetValue;default; end;
+ constructor Create(_n:Longint);
+ function GetValue(i:Longint):single;
+ procedure SetValue(i:Longint;const x:single);
+ Function Copy:Vector;
+ Procedure Free;
+ property Items[i:Longint]:single read GetValue write SetValue;default; end;
  Matrix=object n,m:longint; A:array of array of single;
-  constructor Create(_n,_m:Longint);
-  function GetValue(i,j:Longint):single;
-  procedure SetValue(i,j:Longint;const x:single);
-  property Items[i,j:Longint]:single read GetValue write SetValue;default; end;
+ constructor Create(_n,_m:Longint);
+ function GetValue(i,j:Longint):single;
+ procedure SetValue(i,j:Longint;const x:single);
+ Function Copy:Matrix;
+ Procedure Free;
+ property Items[i,j:Longint]:single read GetValue write SetValue;default; end;
 const
  Vec2_0:Vector2=(0,0);
  Vec3_0:Vector3=(0,0,0);
@@ -77,7 +81,6 @@ procedure Scanf(var a:Matrix2);
 procedure Printf(const a:Vector2);
 procedure PrintfLn(const a:Vector2);
 procedure Printf(const a:Matrix2);
-function Rotate2x2(t:single):Matrix2;
 
 function Vec3(const a:single):Vector3;
 function Vec3(const a1,a2,a3:single):Vector3;
@@ -220,7 +223,7 @@ function det(const a:Matrix):single;
 function cofactor(const a:Matrix;i,j:longint):Matrix;
 function Transpose(const a:Matrix):Matrix;
 function Adjugate(const a:Matrix):Matrix;
-function Inverse(const a:Matrix):Matrix;
+function Inverse(Const S:Matrix):Matrix;
 procedure Swap(var a,b:Vector);
 procedure Swap(var a,b:Matrix);
 procedure Scanf(var a:Vector;n:longint);
@@ -320,9 +323,6 @@ procedure PrintfLn(const a:Vector2);
  begin Printf(a); writeln end;
 procedure Printf(const a:Matrix2);
  begin PrintfLn(a[1]); PrintfLn(a[2]) end;
-function Rotate2x2(t:single):Matrix2;
- var _sin,_cos:single; begin t:=t*pi/180; _sin:=sin(t); _cos:=cos(t);
-                             exit(Mat2(_cos,-_sin,_sin,_cos)) end;
 
 
 function Vec3(const a:single):Vector3;
@@ -717,12 +717,22 @@ function Vector.GetValue(i:Longint):single;
  begin exit(a[i-1]) end;
 procedure Vector.SetValue(i:Longint;const x:single);
  begin a[i-1]:=x end;
+Function Vector.Copy:Vector;
+ Var Tmp:^Vector;
+ Begin New(Tmp,Create(N)); Move(A[0],Tmp^.A[0],N*4); Exit(Tmp^) End;
+Procedure Vector.Free;
+ Begin SetLength(A,0) End;
 constructor Matrix.Create(_n,_m:Longint);
  begin n:=_n; m:=_m; SetLength(a,n,m) end;
 function Matrix.GetValue(i,j:Longint):single;
  begin exit(a[i-1,j-1]) end;
 procedure Matrix.SetValue(i,j:Longint;const x:single);
  begin a[i-1,j-1]:=x end;
+Function Matrix.Copy:Matrix;
+ Var i:Longint; Tmp:^Matrix;
+ Begin New(Tmp,Create(N,M)); For i:=0 to N-1 Do Move(A[i,0],Tmp^.A[i,0],M*4); Exit(Tmp^) End;
+Procedure Matrix.Free;
+ Begin SetLength(A,0,0) End;
 function Vec(a:psingle;n:longint):Vector;
  var i:longint; c:Vector; begin c.n:=n; setlength(c.a,n);
                                 for i:=0 to n-1 do c.a[i]:=a[i] end;
@@ -806,9 +816,34 @@ function Adjugate(const a:Matrix):Matrix;
                                   c.n:=a.n; c.m:=c.n; SetLength(c.a,c.n,c.m);
                                   for i:=0 to c.n-1 do
                                   for j:=0 to c.n-1 do c.a[j,i]:=det(cofactor(a,i+1,j+1))*(1-(i+j)and 1<<1); exit(c) end;
+{
+2017/9/20
+Method Change
+From
+        Algebraic cofactor
+To
+        Elementary transformation
+
 function Inverse(const a:Matrix):Matrix;
  var d:single; begin if a.n<>a.m then halt(201201);
                    d:=det(a); if abs(d)<1e-7 then exit(Mat(a.n,a.m,0)); exit(Adjugate(a)/d) end;
+}
+Function Inverse(Const S:Matrix):Matrix;
+//If The Matrix Is Big,It May Have A Problem Like Accuracy-Error
+ var i,j,k:Longint; T:Single; A,B:Matrix;
+ Begin if S.n<>S.m then halt(201201);
+       A:=S.Copy;
+       b:=mat(a.n,a.n,1);
+       For i:=0 to a.n-1 Do Begin
+       For j:=i to a.n-1 Do If Abs(A.a[j,i])>1e-7 then Break;
+       If Abs(A.a[j,i])<1e-7 then Exit(mat(a.n,a.m,0));
+       If J<>I then For k:=0 to a.n-1 do Begin Swap(A.a[i,k],A.a[j,k]); Swap(B.a[i,k],B.a[j,k]) End;
+       T:=A.a[i,i]; //Not 1/A[i,i]
+       For k:=0 to a.n-1 Do Begin A.a[i,k]:=A.a[i,k]/T; B.a[i,k]:=B.a[i,k]/T End;
+       For j:=0 to a.n-1 Do If J<>I Then Begin T:=A.a[j,i];
+       For k:=0 to a.n-1 Do Begin A.a[j,k]:=A.a[j,k]-A.a[i,k]*T; B.a[j,k]:=B.a[j,k]-B.a[i,k]*T End
+       End End; A.Free;
+       Exit(B) End;
 procedure Swap(var a,b:Vector);
  var c:Vector; begin c:=a; a:=b; b:=c end;
 procedure Swap(var a,b:Matrix);

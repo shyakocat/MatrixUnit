@@ -81,6 +81,7 @@ procedure Scanf(var a:Matrix2);
 procedure Printf(const a:Vector2);
 procedure PrintfLn(const a:Vector2);
 procedure Printf(const a:Matrix2);
+function Rotate2x2(t:single):Matrix2;
 
 function Vec3(const a:single):Vector3;
 function Vec3(const a1,a2,a3:single):Vector3;
@@ -323,6 +324,9 @@ procedure PrintfLn(const a:Vector2);
  begin Printf(a); writeln end;
 procedure Printf(const a:Matrix2);
  begin PrintfLn(a[1]); PrintfLn(a[2]) end;
+function Rotate2x2(t:single):Matrix2;
+var _sin,_cos:single; begin t:=t*pi/180; _sin:=sin(t); _cos:=cos(t);
+                            exit(Mat2(_cos,-_sin,_sin,_cos)) end;
 
 
 function Vec3(const a:single):Vector3;

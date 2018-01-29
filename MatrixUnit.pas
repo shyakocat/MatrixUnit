@@ -775,7 +775,7 @@ operator *(const a:Matrix;const b:Vector)c:Vector;
 operator *(const a:Vector;const b:Matrix)c:Vector;
  var j,k:longint; begin if a.n<>b.n then halt(201201); c.n:=b.m; setlength(c.a,c.n);
                         for j:=0 to c.n-1 do begin c.a[j]:=0;
-                        for k:=0 to a.n-1 do c.a[j]:=c.a[j]+a.a[j]*b.a[k,j] end end;
+                        for k:=0 to a.n-1 do c.a[j]:=c.a[j]+a.a[k]*b.a[k,j] end end;
 operator *(const a:Vector;const t:single)c:Vector;
  var i:longint; begin c.n:=a.n; setlength(c.a,c.n); for i:=1 to c.n do c.a[i]:=a.a[i]*t end;
 operator *(const a:Matrix;const t:single)c:Matrix;
@@ -811,10 +811,9 @@ function cofactor(const a:Matrix;i,j:longint):Matrix;
                                   for y:=0 to a.m-1 do
                                   if (x<>i)and(y<>j) then c.a[x-ord(x>i),y-ord(y>j)]:=a.a[x,y]; exit(c) end;
 function Transpose(const a:Matrix):Matrix;
- var i,j:Longint; c:Matrix; begin if a.n<>a.m then halt(201201);
-                                  c.n:=a.n; c.m:=c.n;
+ var i,j:Longint; c:Matrix; begin c.n:=a.m; c.m:=a.n; SetLength(c.a,c.n,c.m);
                                   for i:=0 to c.n-1 do
-                                  for j:=0 to c.n-1 do c.a[i,j]:=a.a[j,i]; exit(c) end;
+                                  for j:=0 to c.m-1 do c.a[i,j]:=a.a[j,i]; exit(c) end;
 function Adjugate(const a:Matrix):Matrix;
  var i,j:Longint; c:Matrix; begin if a.n<>a.m then halt(201201);
                                   c.n:=a.n; c.m:=c.n; SetLength(c.a,c.n,c.m);

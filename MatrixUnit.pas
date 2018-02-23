@@ -865,7 +865,7 @@ procedure PrintfLn(const a:Vector);
 procedure Printf(const a:Matrix);
  var i,j:longint; begin if (a.n<=0)or(a.m<=0) then exit;
                         for i:=0 to a.n-1 do begin
-                        write('(',a.a[i,0]:10:6); for j:=1 to a.n-1 do write(',',a.a[i,j]:10:6); writeln(')') end end;
+                        write('(',a.a[i,0]:10:6); for j:=1 to a.m-1 do write(',',a.a[i,j]:10:6); writeln(')') end end;
 
 function qBound(a,b,c:Single):Single;
 begin if b<a then b:=a else
